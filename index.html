@@ -48,11 +48,28 @@
         /* --- Lightbox --- */
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(10px); }
         .lightbox.active { display: flex; }
-        .lightbox-content { max-width: 90%; max-height: 90%; position: relative; animation: lightboxZoom 0.3s ease; }
-        @keyframes lightboxZoom { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .lightbox img { max-width: 100%; max-height: 100%; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
         
-        /* MODIFIED: Upgraded lightbox styles */
+        /* MODIFIED: The new, improved lightbox styles */
+        .lightbox-content {
+            max-width: calc(100vw - 160px);
+            max-height: calc(100vh - 120px);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: lightboxZoom 0.3s ease;
+        }
+        @keyframes lightboxZoom { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .lightbox img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* The magic property */
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        
         .lightbox-close {
             position: fixed;
             top: 20px;
@@ -132,62 +149,35 @@
             <button class="back-btn" id="back-btn">← Back to Characters</button>
         </div>
 
-        <div class="character-grid" id="character-grid">
-            <!-- Characters will be loaded here -->
-        </div>
-
+        <div class="character-grid" id="character-grid"></div>
         <div class="image-gallery" id="image-gallery">
-            <div class="gallery-grid" id="gallery-grid">
-                <!-- Images will be loaded here -->
-            </div>
+            <div class="gallery-grid" id="gallery-grid"></div>
             <div class="gallery-message" id="gallery-message" style="display: none;"></div>
         </div>
     </div>
 
-    <!-- MODIFIED: Upgraded Lightbox HTML -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" id="lightbox-close">×</button>
-        
         <button class="lightbox-nav" id="lightbox-prev" aria-label="Previous image">❮</button>
         <button class="lightbox-nav" id="lightbox-next" aria-label="Next image">❯</button>
-
         <div class="lightbox-content">
             <img id="lightbox-img" src="" alt="">
         </div>
-
         <div class="lightbox-caption" id="lightbox-caption"></div>
     </div>
 
     <script>
-        // Character database - The only part you need to edit!
-        // The `id` (e.g., "daisy") MUST match the folder name in `/images/`.
         const characterDatabase = {
             "daisy": {
                 name: "Daisy",
                 description: "A cheerful adventurer who loves to explore sunny fields and ancient ruins.",
-                // Use an image path like 'images/daisy/avatar.png' or an emoji
                 avatar: 'images/daisy/avatar.png' 
             },
-            "zane": {
-                name: "Zane Shadowblade",
-                description: "A mysterious rogue with dual daggers and a troubled past.",
-                avatar: "🗡️"
-            },
-            "maya": {
-                name: "Maya Stormcaller",
-                description: "A powerful sorceress who commands lightning and thunder.",
-                avatar: "⚡"
-            },
-            "kai": {
-                name: "Kai Ironheart",
-                description: "A noble paladin with unshakeable faith and a magical sword.",
-                avatar: "🛡️"
-            }
+            "zane": { name: "Zane Shadowblade", description: "A mysterious rogue with dual daggers and a troubled past.", avatar: "🗡️" },
+            "maya": { name: "Maya Stormcaller", description: "A powerful sorceress who commands lightning and thunder.", avatar: "⚡" },
+            "kai": { name: "Kai Ironheart", description: "A noble paladin with unshakeable faith and a magical sword.", avatar: "🛡️" }
         };
 
-        // --- NO NEED TO EDIT BELOW THIS LINE ---
-
-        // DOM Elements
         const characterGrid = document.getElementById('character-grid');
         const imageGallery = document.getElementById('image-gallery');
         const galleryGrid = document.getElementById('gallery-grid');
@@ -195,8 +185,6 @@
         const backBtn = document.getElementById('back-btn');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
-
-        // Lightbox Elements
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
@@ -204,7 +192,6 @@
         const lightboxNext = document.getElementById('lightbox-next');
         const lightboxCaption = document.getElementById('lightbox-caption');
 
-        // State variables for the lightbox gallery
         let currentGalleryImages = [];
         let currentImageIndex = 0;
 
@@ -233,13 +220,9 @@
         function setupEventListeners() {
             backBtn.addEventListener('click', showCharacters);
             lightboxClose.addEventListener('click', closeLightbox);
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) closeLightbox();
-            });
-            
+            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
             lightboxPrev.addEventListener('click', () => showLightboxImage(currentImageIndex - 1));
             lightboxNext.addEventListener('click', () => showLightboxImage(currentImageIndex + 1));
-
             document.addEventListener('keydown', (e) => {
                 if (lightbox.classList.contains('active')) {
                     if (e.key === 'ArrowRight') showLightboxImage(currentImageIndex + 1);
@@ -258,24 +241,12 @@
                 const card = document.createElement('div');
                 card.className = 'character-card';
                 card.setAttribute('data-character', characterId);
-                
-                let avatarContent = character.avatar;
-                if (character.avatar.includes('.')) {
-                    avatarContent = `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">`;
-                }
-
-                card.innerHTML = `
-                    <div class="character-avatar">${avatarContent}</div>
-                    <div class="character-name">${character.name}</div>
-                    <div class="character-description">${character.description}</div>
-                    <div class="image-count" id="count-${characterId}"><div class="loading-spinner" style="width:15px; height:15px; border-width:2px;"></div></div>
-                `;
+                let avatarContent = character.avatar.includes('.') ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` : character.avatar;
+                card.innerHTML = `<div class="character-avatar">${avatarContent}</div><div class="character-name">${character.name}</div><div class="character-description">${character.description}</div><div class="image-count" id="count-${characterId}"><div class="loading-spinner" style="width:15px; height:15px; border-width:2px;"></div></div>`;
                 card.addEventListener('click', () => showCharacterGallery(characterId));
                 characterGrid.appendChild(card);
-
                 const imageCount = await countImages(characterId);
-                const countElement = document.getElementById(`count-${characterId}`);
-                countElement.textContent = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
+                document.getElementById(`count-${characterId}`).textContent = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
             });
         }
 
@@ -291,42 +262,29 @@
         async function countImages(characterId) {
             let count = 0;
             for (let i = 1; i <= 100; i++) {
-                const path = `images/${characterId}/image${i}.png`;
-                if (await checkImage(path)) {
-                    count++;
-                } else {
-                    break;
-                }
+                if (await checkImage(`images/${characterId}/image${i}.png`)) count++; else break;
             }
             return count;
         }
 
         async function showCharacterGallery(characterId) {
             const character = characterDatabase[characterId];
-            
             mainTitle.textContent = character.name;
             mainSubtitle.textContent = character.description;
-            
             characterGrid.style.display = 'none';
             imageGallery.classList.add('active');
             backBtn.style.display = 'block';
             galleryGrid.innerHTML = '';
             galleryGrid.style.display = 'none';
-            
             galleryMessage.style.display = 'block';
             galleryMessage.innerHTML = '<div class="loading-spinner"></div>';
-
             currentGalleryImages = await findCharacterImages(characterId);
-
             if (currentGalleryImages.length === 0) {
                 galleryMessage.innerHTML = `<p>No images found for this character yet!</p><p style="margin-top: 10px; font-size: 1rem; opacity: 0.7;">Add files like <code>image1.png</code> to the <code>/images/${characterId}/</code> folder.</p>`;
             } else {
                 galleryMessage.style.display = 'none';
                 galleryGrid.style.display = 'grid';
-                currentGalleryImages.forEach((image, index) => {
-                    const imageItem = createImageItem(image, index);
-                    galleryGrid.appendChild(imageItem);
-                });
+                currentGalleryImages.forEach((image, index) => galleryGrid.appendChild(createImageItem(image, index)));
             }
         }
 
@@ -335,13 +293,8 @@
             for (let i = 1; i <= 100; i++) {
                 const path = `images/${characterId}/image${i}.png`;
                 if (await checkImage(path)) {
-                    foundImages.push({
-                        src: path,
-                        title: `${characterDatabase[characterId].name} - Image ${i}`
-                    });
-                } else {
-                    break;
-                }
+                    foundImages.push({ src: path, title: `${characterDatabase[characterId].name} - Image ${i}` });
+                } else break;
             }
             return foundImages;
         }
@@ -357,11 +310,7 @@
         function createImageItem(image, index) {
             const item = document.createElement('div');
             item.className = 'image-item';
-            
-            item.innerHTML = `
-                <img src="${image.src}" alt="${image.title}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                <div class="image-overlay"><div class="image-title">${image.title}</div></div>
-            `;
+            item.innerHTML = `<img src="${image.src}" alt="${image.title}" loading="lazy" onerror="this.parentElement.style.display='none'"><div class="image-overlay"><div class="image-title">${image.title}</div></div>`;
             item.addEventListener('click', () => openLightbox(index));
             return item;
         }
@@ -379,17 +328,10 @@
 
         function showLightboxImage(index) {
             if (currentGalleryImages.length === 0) return;
-
-            if (index >= currentGalleryImages.length) {
-                index = 0;
-            }
-            if (index < 0) {
-                index = currentGalleryImages.length - 1;
-            }
-
+            if (index >= currentGalleryImages.length) index = 0;
+            if (index < 0) index = currentGalleryImages.length - 1;
             currentImageIndex = index;
             const image = currentGalleryImages[index];
-            
             lightboxImg.style.opacity = 0;
             setTimeout(() => {
                 lightboxImg.src = image.src;
