@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Image Gallery!</title>
+    <title>Character Gallery</title>
     <style>
         * {
             margin: 0;
@@ -16,40 +16,72 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
         }
 
+        /* Header Styles */
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             color: white;
+            position: relative;
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 4rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #fff, #e0e0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             opacity: 0.9;
+            margin-bottom: 20px;
         }
 
-        .folder-nav {
+        /* Navigation */
+        .nav-container {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .folder-btn {
+        .back-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -59,45 +91,143 @@
             transition: all 0.3s ease;
             font-size: 16px;
             backdrop-filter: blur(10px);
+            display: none;
         }
 
-        .folder-btn:hover,
-        .folder-btn.active {
+        .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .gallery {
+        /* Character Grid */
+        .character-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
             margin-bottom: 40px;
+        }
+
+        .character-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .character-card:hover::before {
+            left: 100%;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .character-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .character-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .character-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .image-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 15px;
+            color: white;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: none;
+        }
+
+        .image-gallery.active {
+            display: block;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
 
         .image-item {
             position: relative;
             aspect-ratio: 1;
             overflow: hidden;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .image-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transform: translateY(-8px) rotate(1deg);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .image-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
 
         .image-item:hover img {
@@ -109,11 +239,11 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
             color: white;
-            padding: 20px;
+            padding: 25px;
             transform: translateY(100%);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
 
         .image-item:hover .image-overlay {
@@ -121,23 +251,29 @@
         }
 
         .image-title {
-            font-size: 14px;
+            font-size: 1.1rem;
             font-weight: 600;
+            margin-bottom: 5px;
         }
 
-        /* Lightbox Styles */
+        .image-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Lightbox */
         .lightbox {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
 
         .lightbox.active {
@@ -148,85 +284,126 @@
             max-width: 90%;
             max-height: 90%;
             position: relative;
+            animation: lightboxZoom 0.3s ease;
+        }
+
+        @keyframes lightboxZoom {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .lightbox img {
             max-width: 100%;
             max-height: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
         }
 
         .lightbox-close {
             position: absolute;
-            top: -40px;
+            top: -50px;
             right: 0;
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 30px;
+            font-size: 35px;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         .lightbox-close:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         .no-images {
             text-align: center;
             color: rgba(255, 255, 255, 0.8);
-            font-size: 18px;
-            padding: 60px 20px;
+            font-size: 1.2rem;
+            padding: 80px 20px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            border-radius: 20px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
             
-            .gallery {
+            .character-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .gallery-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                 gap: 15px;
             }
             
-            .folder-btn {
-                padding: 10px 20px;
-                font-size: 14px;
+            .character-card {
+                padding: 20px;
             }
+            
+            .character-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <div class="bg-particles" id="particles"></div>
+    
     <div class="container">
         <header>
-            <h1>My Image Gallery</h1>
-            <p class="subtitle">Explore my photography collection</p>
+            <h1 id="main-title">Character Gallery</h1>
+            <p class="subtitle" id="main-subtitle">Explore my amazing characters</p>
         </header>
 
-        <nav class="folder-nav">
-            <button class="folder-btn active" data-folder="all">All Photos</button>
-            <button class="folder-btn" data-folder="landscapes">Landscapes</button>
-            <button class="folder-btn" data-folder="portraits">Portraits</button>
-            <button class="folder-btn" data-folder="travel">Travel</button>
-        </nav>
-
-        <div class="gallery" id="gallery">
-            <!-- Images will be loaded here -->
+        <div class="nav-container">
+            <button class="back-btn" id="back-btn">← Back to Characters</button>
         </div>
 
-        <div class="no-images" id="no-images" style="display: none;">
-            <p>No images found in this folder. Add some images to get started!</p>
+        <!-- Main Character Selection -->
+        <div class="character-grid" id="character-grid">
+            <!-- Characters will be loaded here -->
+        </div>
+
+        <!-- Individual Character Gallery -->
+        <div class="image-gallery" id="image-gallery">
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Images will be loaded here -->
+            </div>
+            <div class="no-images" id="no-images" style="display: none;">
+                <p>No images found for this character yet!</p>
+                <p style="margin-top: 10px; font-size: 1rem; opacity: 0.7;">Add some PNG files to get started.</p>
+            </div>
         </div>
     </div>
 
@@ -239,102 +416,189 @@
     </div>
 
     <script>
-        // Image database - replace with your actual images
-        const imageDatabase = {
-            landscapes: [
-                { src: 'images/landscapes/your-photo1.png', title: 'Mountain Vista' },
-                { src: 'images/landscapes/sunset2.jpg', title: 'Golden Sunset' },
-                { src: 'images/landscapes/forest3.jpg', title: 'Misty Forest' }
-            ],
-            portraits: [
-                { src: 'images/portraits/photo1.jpg', title: 'Portrait Study 1' },
-                { src: 'images/portraits/photo2.jpg', title: 'Portrait Study 2' }
-            ],
-            travel: [
-                { src: 'images/travel/paris1.jpg', title: 'Paris Streets' },
-                { src: 'images/travel/tokyo2.jpg', title: 'Tokyo Nights' },
-                { src: 'images/travel/rome3.jpg', title: 'Roman Architecture' }
-            ]
+        // Character database - Add your characters here!
+        const characterDatabase = {
+            "aria": {
+                name: "Daisy",
+                description: "she loves to goon.",
+                avatar: "🏹", // You can replace with actual image path
+                images: [
+                    { src: 'images/daisy/image1.png', title: 'goon', description: 'test' },
+                    { src: 'images/aria/action1.png', title: 'Drawing the Bow', description: 'Ready for battle in the ancient forest' },
+                    { src: 'images/aria/casual1.png', title: 'Village Visit', description: 'Aria in casual attire visiting the local market' }
+                ]
+            },
+            "zane": {
+                name: "Zane Shadowblade",
+                description: "A mysterious rogue with dual daggers and a troubled past, seeking redemption through heroic deeds.",
+                avatar: "🗡️",
+                images: [
+                    { src: 'images/zane/stealth1.png', title: 'In the Shadows', description: 'Zane blending with the darkness' },
+                    { src: 'images/zane/portrait1.png', title: 'Brooding Portrait', description: 'A contemplative moment' },
+                    { src: 'images/zane/action1.png', title: 'Dual Strike', description: 'Combat stance with twin blades' }
+                ]
+            },
+            "maya": {
+                name: "Maya Stormcaller",
+                description: "A powerful sorceress who commands lightning and thunder, with eyes that spark with electric energy.",
+                avatar: "⚡",
+                images: [
+                    { src: 'images/maya/spell1.png', title: 'Lightning Storm', description: 'Casting a powerful storm spell' },
+                    { src: 'images/maya/portrait1.png', title: 'Electric Eyes', description: 'Maya\'s piercing magical gaze' },
+                    { src: 'images/maya/study1.png', title: 'Arcane Research', description: 'Studying ancient magical texts' }
+                ]
+            },
+            "kai": {
+                name: "Kai Ironheart",
+                description: "A noble paladin with unshakeable faith and a magical sword that glows with divine light.",
+                avatar: "🛡️",
+                images: [
+                    { src: 'images/kai/battle1.png', title: 'Divine Warrior', description: 'Kai in full battle regalia' },
+                    { src: 'images/kai/prayer1.png', title: 'Morning Prayer', description: 'A quiet moment of devotion' },
+                    { src: 'images/kai/portrait1.png', title: 'Noble Spirit', description: 'The gentle strength of a true paladin' }
+                ]
+            }
         };
 
-        let currentFolder = 'all';
+        let currentView = 'characters';
+        let currentCharacter = null;
         
         // DOM elements
-        const gallery = document.getElementById('gallery');
+        const characterGrid = document.getElementById('character-grid');
+        const imageGallery = document.getElementById('image-gallery');
+        const galleryGrid = document.getElementById('gallery-grid');
         const noImages = document.getElementById('no-images');
+        const backBtn = document.getElementById('back-btn');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
-        const folderBtns = document.querySelectorAll('.folder-btn');
+        const mainTitle = document.getElementById('main-title');
+        const mainSubtitle = document.getElementById('main-subtitle');
 
-        // Initialize gallery
+        // Initialize app
         function init() {
-            loadImages('all');
+            createBackgroundParticles();
+            loadCharacters();
             setupEventListeners();
+        }
+
+        // Create animated background particles
+        function createBackgroundParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 10 + 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
         }
 
         // Setup event listeners
         function setupEventListeners() {
-            // Folder navigation
-            folderBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const folder = btn.dataset.folder;
-                    setActiveFolder(btn);
-                    loadImages(folder);
-                });
-            });
-
-            // Lightbox close
+            backBtn.addEventListener('click', showCharacters);
             lightboxClose.addEventListener('click', closeLightbox);
             lightbox.addEventListener('click', (e) => {
                 if (e.target === lightbox) closeLightbox();
             });
-
-            // Keyboard navigation
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'Escape') {
+                    if (lightbox.classList.contains('active')) {
+                        closeLightbox();
+                    } else if (currentView === 'gallery') {
+                        showCharacters();
+                    }
+                }
             });
         }
 
-        // Set active folder button
-        function setActiveFolder(activeBtn) {
-            folderBtns.forEach(btn => btn.classList.remove('active'));
-            activeBtn.classList.add('active');
+        // Load and display characters
+        function loadCharacters() {
+            characterGrid.innerHTML = '';
+            
+            Object.keys(characterDatabase).forEach(characterId => {
+                const character = characterDatabase[characterId];
+                const characterCard = createCharacterCard(character, characterId);
+                characterGrid.appendChild(characterCard);
+            });
         }
 
-        // Load images for a folder
-        function loadImages(folder) {
-            currentFolder = folder;
-            let images = [];
+        // Create character card
+        function createCharacterCard(character, characterId) {
+            const card = document.createElement('div');
+            card.className = 'character-card';
+            card.setAttribute('data-character', characterId);
+            
+            const imageCount = character.images ? character.images.length : 0;
+            
+            card.innerHTML = `
+                <div class="character-avatar">
+                    ${character.avatar}
+                </div>
+                <div class="character-name">${character.name}</div>
+                <div class="character-description">${character.description}</div>
+                <div class="image-count">${imageCount} images</div>
+            `;
 
-            if (folder === 'all') {
-                // Combine all images
-                Object.keys(imageDatabase).forEach(key => {
-                    images = images.concat(imageDatabase[key]);
-                });
-            } else {
-                images = imageDatabase[folder] || [];
-            }
-
-            renderGallery(images);
+            card.addEventListener('click', () => showCharacterGallery(characterId));
+            
+            return card;
         }
 
-        // Render gallery
-        function renderGallery(images) {
-            gallery.innerHTML = '';
+        // Show character gallery
+        function showCharacterGallery(characterId) {
+            currentCharacter = characterId;
+            currentView = 'gallery';
+            const character = characterDatabase[characterId];
+            
+            // Update header
+            mainTitle.textContent = character.name;
+            mainSubtitle.textContent = character.description;
+            
+            // Show/hide elements
+            characterGrid.style.display = 'none';
+            imageGallery.classList.add('active');
+            backBtn.style.display = 'block';
+            
+            // Load images
+            loadCharacterImages(character.images || []);
+        }
+
+        // Show characters view
+        function showCharacters() {
+            currentView = 'characters';
+            currentCharacter = null;
+            
+            // Update header
+            mainTitle.textContent = 'Character Gallery';
+            mainSubtitle.textContent = 'Explore my amazing characters';
+            
+            // Show/hide elements
+            characterGrid.style.display = 'grid';
+            imageGallery.classList.remove('active');
+            backBtn.style.display = 'none';
+        }
+
+        // Load character images
+        function loadCharacterImages(images) {
+            galleryGrid.innerHTML = '';
             
             if (images.length === 0) {
-                gallery.style.display = 'none';
+                galleryGrid.style.display = 'none';
                 noImages.style.display = 'block';
                 return;
             }
 
-            gallery.style.display = 'grid';
+            galleryGrid.style.display = 'grid';
             noImages.style.display = 'none';
 
             images.forEach((image, index) => {
                 const imageItem = createImageItem(image, index);
-                gallery.appendChild(imageItem);
+                galleryGrid.appendChild(imageItem);
             });
         }
 
@@ -344,15 +608,16 @@
             item.className = 'image-item';
             
             item.innerHTML = `
-                <img src="${image.src}" alt="${image.title}" loading="lazy">
+                <img src="${image.src}" alt="${image.title}" loading="lazy" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='">
                 <div class="image-overlay">
                     <div class="image-title">${image.title}</div>
+                    <div class="image-description">${image.description || ''}</div>
                 </div>
             `;
 
-            // Add click handler for lightbox
             item.addEventListener('click', () => openLightbox(image.src, image.title));
-
+            
             return item;
         }
 
