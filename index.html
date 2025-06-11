@@ -82,7 +82,7 @@
         .image-gallery.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-top: 40px; }
-        .image-item { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 20px; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .image-item { position: relative; overflow: hidden; border-radius: 20px; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
         .image-item:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1); }
         .image-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .image-item:hover img { transform: scale(1.05); }
@@ -97,30 +97,7 @@
             gap: 24px; 
             margin-top: 40px; 
         }
-
-        /* FIXED: Image items now adapt to content height instead of forcing square aspect */
-        .image-item { 
-            position: relative; 
-            overflow: hidden; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.06); 
-        }
-        .image-item:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1); }
         
-        /* FIXED: Images now maintain aspect ratio and fit properly */
-        .image-item img { 
-            width: 100%; 
-            height: auto; 
-            display: block; 
-            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-        }
-        .image-item:hover img { transform: scale(1.05); }
-        .image-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0, 0, 0, 0.8)); backdrop-filter: blur(10px); color: white; padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .image-item:hover .image-overlay { transform: translateY(0); }
-        .image-title { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
 
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .lightbox.active { display: flex; animation: fadeIn 0.3s ease; }
@@ -150,9 +127,9 @@
             object-fit: contain; 
             border-radius: 12px; 
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); 
-            transition: none;
             cursor: zoom-in; 
             transform-origin: center center;
+            transition: transform 0.3s ease;
         }
         .lightbox img.zoomed { 
             cursor: grab; 
@@ -480,7 +457,7 @@
             isZoomed = false;
             isDragging = false;
             lightboxImg.classList.remove('zoomed');
-            lightboxImg.style.transform = 'scale(1) translate(0, 0)';
+            lightboxImg.style.transform = 'scale(1)';
             currentTranslate = { x: 0, y: 0 };
             lastTranslate = { x: 0, y: 0 };
         }
@@ -488,22 +465,13 @@
         function toggleZoom(e) {
             if (isDragging) return;
             e.preventDefault();
+            e.stopPropagation();
+            
             isZoomed = !isZoomed;
-            lightboxImg.classList.toggle('zoomed');
-
+            
             if (isZoomed) {
-                const rect = lightboxImg.getBoundingClientRect();
-                const scale = 2.5;
-                // Center zoom on click point
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                
-                currentTranslate.x = -(x * (scale - 1));
-                currentTranslate.y = -(y * (scale - 1));
-                lastTranslate.x = currentTranslate.x;
-                lastTranslate.y = currentTranslate.y;
-
-                lightboxImg.style.transform = `scale(${scale}) translate(${currentTranslate.x}px, ${currentTranslate.y}px)`;
+                lightboxImg.classList.add('zoomed');
+                lightboxImg.style.transform = 'scale(2.5)';
             } else {
                 resetZoom();
             }
@@ -512,33 +480,35 @@
         function startPan(e) {
             if (!isZoomed) return;
             e.preventDefault();
+            e.stopPropagation();
             isDragging = true;
-            startPos.x = (e.clientX || e.touches[0].clientX) - lastTranslate.x;
-            startPos.y = (e.clientY || e.touches[0].clientY) - lastTranslate.y;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            startPos.x = clientX - currentTranslate.x;
+            startPos.y = clientY - currentTranslate.y;
         }
 
         function pan(e) {
             if (!isDragging || !isZoomed) return;
             e.preventDefault();
-            const clientX = e.clientX || e.touches[0].clientX;
-            const clientY = e.clientY || e.touches[0].clientY;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
 
             currentTranslate.x = clientX - startPos.x;
             currentTranslate.y = clientY - startPos.y;
 
-            // Clamp panning to keep image within view
-            const rect = lightboxImg.getBoundingClientRect();
-            const containerRect = lightboxImg.parentElement.getBoundingClientRect();
-            const maxTranslateX = (rect.width - containerRect.width) / 2;
-            const maxTranslateY = (rect.height - containerRect.height) / 2;
-
-            currentTranslate.x = Math.max(Math.min(currentTranslate.x, maxTranslateX), -maxTranslateX);
-            currentTranslate.y = Math.max(Math.min(currentTranslate.y, maxTranslateY), -maxTranslateY);
+            // Apply constraints to keep image visible
+            const maxTranslate = 200; // Adjust this value as needed
+            currentTranslate.x = Math.max(Math.min(currentTranslate.x, maxTranslate), -maxTranslate);
+            currentTranslate.y = Math.max(Math.min(currentTranslate.y, maxTranslate), -maxTranslate);
 
             lightboxImg.style.transform = `scale(2.5) translate(${currentTranslate.x}px, ${currentTranslate.y}px)`;
         }
 
-        function endPan() {
+        function endPan(e) {
             if (!isDragging) return;
             isDragging = false;
             lastTranslate.x = currentTranslate.x;
