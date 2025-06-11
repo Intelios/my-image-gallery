@@ -59,6 +59,24 @@
 
         .image-count { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; color: #f5f5f7; font-size: 0.875rem; font-weight: 500; display: inline-block; }
 
+        /* --- NEW: New Badge Style --- */
+        .new-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #34C759; /* Apple Green */
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
         /* --- Image Gallery --- */
         .image-gallery { display: none; animation: fadeInUp 0.6s ease-out; }
         .image-gallery.active { display: block; }
@@ -76,9 +94,14 @@
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .lightbox.active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .lightbox-content { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); position: relative; display: flex; align-items: center; justify-content: center; animation: zoomIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        /* NEW: Added overflow:hidden to contain the zoomed image */
+        .lightbox-content { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); position: relative; display: flex; align-items: center; justify-content: center; animation: zoomIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); overflow: hidden; }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); transition: opacity 0.3s ease; }
+        /* NEW: Styles for zoomable/pannable image */
+        .lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: zoom-in; }
+        .lightbox img.zoomed { max-width: none; max-height: none; cursor: grab; }
+        .lightbox img.zoomed:active { cursor: grabbing; }
+
         .lightbox-close { position: fixed; top: 24px; right: 24px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); color: #f5f5f7; font-size: 24px; cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1002; font-weight: 300; }
         .lightbox-close:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.05); }
         .lightbox-nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); color: #f5f5f7; font-size: 20px; cursor: pointer; width: 44px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1001; user-select: none; }
@@ -109,7 +132,6 @@
         <header>
             <h1 id="main-title">Character Gallery</h1>
             <p class="subtitle" id="main-subtitle">Explore my characters.</p>
-            <!-- MODIFIED: Container for the profile link, hidden by default -->
             <div id="character-link-container" style="display: none; margin-top: 24px;"></div>
         </header>
 
@@ -136,30 +158,40 @@
 
     <script>
         // --- The only part you need to edit! ---
+        // NEW: Performance improvement - image data is now stored here directly.
         const characterDatabase = {
             "mina": {
                 name: "Mina",
                 description: "In a world that sees her as property, can Mina survive, understand her newfound sentience, and perhaps even find what it means to be more than just a machine? And what role will you play in her desperate fight for existence?",
                 avatar: 'images/mina/avatar.png',
-                link: 'https://janitorai.com/characters/0bd0acec-ae45-4dbb-8d27-677702eee8ab_character-mina-the-android-idol-who-ran-away'
+                link: 'https://janitorai.com/characters/0bd0acec-ae45-4dbb-8d27-677702eee8ab_character-mina-the-android-idol-who-ran-away',
+                images: [
+                    // Add your image paths here, e.g.:
+                    // { src: 'images/mina/image1.png', title: 'Mina - Image 1' },
+                    // { src: 'images/mina/image2.png', title: 'Mina - Image 2' },
+                ]
             },
             "rei": { 
                 name: "Rei Ishikawa", 
                 description: "You are the Captain, commander of the doomed ISF-Valerius. Rei was your corporate babysitter—the ICG's eyes and ears, possibly a constant source of bureaucratic friction. Now she's your only crew member, and her survival depends entirely on your competence.", 
                 avatar: "images/rei/avatar.png",
-                link: 'https://janitorai.com/characters/53f26fb7-647f-4dbf-9b28-0d9377ba5aca_character-rei-lost-in-space-with-you'
+                link: 'https://janitorai.com/characters/53f26fb7-647f-4dbf-9b28-0d9377ba5aca_character-rei-lost-in-space-with-you',
+                images: []
             },
             "sparklepop": { 
                 name: "Sparkle⭐️Pop", 
                 description: "Meet the former members of SPARKLE★POP—once Japan's most beloved rising idol sensation, now trapped in an underground nightmare that's stripped away their dreams, innocence, and freedom.", 
                 avatar: "images/sparklepop/avatar.png",
-                link: 'https://janitorai.com/characters/b99c0c5c-ce65-4e9d-a72e-d56e5fe74388_character-sparkle★pop-fallen-angels'
+                link: 'https://janitorai.com/characters/b99c0c5c-ce65-4e9d-a72e-d56e5fe74388_character-sparkle★pop-fallen-angels',
+                images: []
             },
             "lena": { 
                 name: "Lena 'The Harbinger'", 
                 description: "Meet Lena 'Harbinger' Volkov, the Euro-American Defense Force's most lethal sniper and its most cursed soldier. At 25, she's already a legend for her impossible shots and perfect mission success rate. She's equally legendary for the fact that every partner assigned to her dies within months.", 
                 avatar: "images/lena/avatar.png",
-                link: 'https://janitorai.com/characters/b2a9e3e9-45d2-4b49-b594-cc00bd367540_character-lena-your-final-assignment'
+                link: 'https://janitorai.com/characters/b2a9e3e9-45d2-4b49-b594-cc00bd367540_character-lena-your-final-assignment',
+                isNew: true, // NEW: Add this flag to show the "NEW" badge
+                images: []
             }
         };
 
@@ -172,7 +204,7 @@
         const backBtn = document.getElementById('back-btn');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
-        const linkContainer = document.getElementById('character-link-container'); // MODIFIED: Get the new container
+        const linkContainer = document.getElementById('character-link-container');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
@@ -183,9 +215,16 @@
         let currentGalleryImages = [];
         let currentImageIndex = 0;
 
-        async function init() {
+        // NEW: Variables for lightbox zoom/pan functionality
+        let isZoomed = false;
+        let isDragging = false;
+        let startPos = { x: 0, y: 0 };
+        let currentTranslate = { x: 0, y: 0 };
+        let lastTranslate = { x: 0, y: 0 };
+
+        function init() {
             setupEventListeners();
-            await loadCharacters();
+            loadCharacters();
             handleInitialLoad();
             preloader.classList.add('hidden');
         }
@@ -196,10 +235,20 @@
             lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
             lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex - 1); });
             lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex + 1); });
+            
+            // NEW: Event listeners for zoom and pan
+            lightboxImg.addEventListener('click', toggleZoom);
+            lightboxImg.addEventListener('mousedown', startPan);
+            lightboxImg.addEventListener('touchstart', startPan, { passive: false });
+            window.addEventListener('mousemove', pan);
+            window.addEventListener('touchmove', pan, { passive: false });
+            window.addEventListener('mouseup', endPan);
+            window.addEventListener('touchend', endPan);
+
             document.addEventListener('keydown', (e) => {
                 if (lightbox.classList.contains('active')) {
-                    if (e.key === 'ArrowRight') showLightboxImage(currentImageIndex + 1);
-                    if (e.key === 'ArrowLeft') showLightboxImage(currentImageIndex - 1);
+                    if (e.key === 'ArrowRight' && !isZoomed) showLightboxImage(currentImageIndex + 1);
+                    if (e.key === 'ArrowLeft' && !isZoomed) showLightboxImage(currentImageIndex - 1);
                     if (e.key === 'Escape') closeLightbox();
                 } else if (imageGallery.classList.contains('active')) {
                     if (e.key === 'Escape') showCharacters();
@@ -210,58 +259,35 @@
 
         function loadCharacters() {
             characterGrid.innerHTML = '';
-            const characterPromises = Object.keys(characterDatabase).map(characterId => {
-                return new Promise(async (resolve) => {
-                    const character = characterDatabase[characterId];
-                    const card = document.createElement('div');
-                    card.className = 'character-card';
-                    let avatarContent = character.avatar.includes('.') ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` : character.avatar;
-                    
-                    // MODIFIED: The link button is REMOVED from the card
-                    card.innerHTML = `
-                        <div class="character-avatar">${avatarContent}</div>
-                        <div class="character-name">${character.name}</div>
-                        <div class="character-description">${character.description}</div>
-                        <div class="image-count" id="count-${characterId}">
-                            <div class="loading-spinner"></div>
-                        </div>
-                    `;
-                    
-                    card.addEventListener('click', () => showCharacterGallery(characterId));
-                    characterGrid.appendChild(card);
-                    
-                    const imageCount = await countImages(characterId);
-                    document.getElementById(`count-${characterId}`).textContent = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
-                    resolve();
-                });
-            });
-            return Promise.all(characterPromises);
-        }
+            Object.keys(characterDatabase).forEach(characterId => {
+                const character = characterDatabase[characterId];
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                let avatarContent = character.avatar.includes('.') ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` : character.avatar;
+                
+                // NEW: Add "NEW" badge if character.isNew is true
+                const newBadgeHTML = character.isNew ? '<div class="new-badge">NEW</div>' : '';
+                const imageCount = character.images.length;
 
-        function checkImage(path) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = path;
+                card.innerHTML = `
+                    ${newBadgeHTML}
+                    <div class="character-avatar">${avatarContent}</div>
+                    <div class="character-name">${character.name}</div>
+                    <div class="character-description">${character.description}</div>
+                    <div class="image-count">${imageCount} image${imageCount !== 1 ? 's' : ''}</div>
+                `;
+                
+                card.addEventListener('click', () => showCharacterGallery(characterId));
+                characterGrid.appendChild(card);
             });
         }
 
-        async function countImages(characterId) {
-            let count = 0;
-            for (let i = 1; i <= 100; i++) {
-                if (await checkImage(`images/${characterId}/image${i}.png`)) count++; else break;
-            }
-            return count;
-        }
-
-        async function showCharacterGallery(characterId) {
+        function showCharacterGallery(characterId) {
             history.pushState({ character: characterId }, '', `#${characterId}`);
             const character = characterDatabase[characterId];
             mainTitle.textContent = character.name;
             mainSubtitle.textContent = character.description;
             
-            // MODIFIED: Add the profile link button to the header
             if (character.link) {
                 linkContainer.innerHTML = `
                     <a href="${character.link}" class="character-link" target="_blank" rel="noopener noreferrer">
@@ -282,10 +308,11 @@
             galleryMessage.style.display = 'block';
             galleryMessage.innerHTML = '<div class="loading-spinner"></div>';
             
-            currentGalleryImages = await findCharacterImages(characterId);
+            // NEW: Get images directly from the database object
+            currentGalleryImages = character.images;
             
             if (currentGalleryImages.length === 0) {
-                galleryMessage.innerHTML = `<p>No images found for this character yet!</p><p style="margin-top: 16px; font-size: 1rem; opacity: 0.7;">Add files like <code>image1.png</code> to the <code>/images/${characterId}/</code> folder.</p>`;
+                galleryMessage.innerHTML = `<p>No images found for this character yet!</p><p style="margin-top: 16px; font-size: 1rem; opacity: 0.7;">Add image objects to the <code>images</code> array for <code>${characterId}</code> in the script.</p>`;
             } else {
                 galleryMessage.style.display = 'none';
                 galleryGrid.style.display = 'grid';
@@ -293,25 +320,11 @@
             }
         }
 
-        async function findCharacterImages(characterId) {
-            const foundImages = [];
-            for (let i = 1; i <= 100; i++) {
-                const path = `images/${characterId}/image${i}.png`;
-                if (await checkImage(path)) {
-                    foundImages.push({ src: path, title: `${characterDatabase[characterId].name} - Image ${i}` });
-                } else break;
-            }
-            return foundImages;
-        }
-
         function showCharacters() {
             history.pushState({ character: null }, '', window.location.pathname + window.location.search);
             mainTitle.textContent = 'Character Gallery';
             mainSubtitle.textContent = 'Explore my characters.';
-            
-            // MODIFIED: Hide the profile link container when going back home
             linkContainer.style.display = 'none';
-
             characterGrid.style.display = 'grid';
             imageGallery.classList.remove('active');
             backBtn.style.display = 'none';
@@ -334,23 +347,98 @@
         function closeLightbox() {
             lightbox.classList.remove('active');
             document.body.style.overflow = 'auto';
+            resetZoom(); // NEW: Reset zoom state on close
         }
 
         function showLightboxImage(index) {
             if (currentGalleryImages.length === 0) return;
+            resetZoom(); // NEW: Reset zoom state when changing image
             if (index >= currentGalleryImages.length) index = 0;
             if (index < 0) index = currentGalleryImages.length - 1;
             currentImageIndex = index;
             const image = currentGalleryImages[index];
-            lightboxImg.style.opacity = 0;
-            setTimeout(() => {
+            
+            // Preload the image before showing it to avoid flashes
+            const img = new Image();
+            img.src = image.src;
+            img.onload = () => {
                 lightboxImg.src = image.src;
                 lightboxImg.alt = image.title;
                 lightboxCaption.textContent = `${image.title} (${index + 1} / ${currentGalleryImages.length})`;
-                lightboxImg.style.opacity = 1;
-            }, 150);
+            };
         }
         
+        // --- NEW: All functions below are for the zoom/pan feature ---
+
+        function resetZoom() {
+            isZoomed = false;
+            isDragging = false;
+            lightboxImg.classList.remove('zoomed');
+            lightboxImg.style.transform = 'scale(1) translate(0, 0)';
+            currentTranslate = { x: 0, y: 0 };
+            lastTranslate = { x: 0, y: 0 };
+        }
+
+        function toggleZoom(e) {
+            if (isDragging) return;
+            e.preventDefault();
+            isZoomed = !isZoomed;
+            lightboxImg.classList.toggle('zoomed');
+
+            if (isZoomed) {
+                const rect = lightboxImg.getBoundingClientRect();
+                const scale = 2.5;
+                // Center zoom on click point
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                
+                currentTranslate.x = -(x * (scale - 1));
+                currentTranslate.y = -(y * (scale - 1));
+                lastTranslate.x = currentTranslate.x;
+                lastTranslate.y = currentTranslate.y;
+
+                lightboxImg.style.transform = `scale(${scale}) translate(${currentTranslate.x}px, ${currentTranslate.y}px)`;
+            } else {
+                resetZoom();
+            }
+        }
+
+        function startPan(e) {
+            if (!isZoomed) return;
+            e.preventDefault();
+            isDragging = true;
+            startPos.x = (e.clientX || e.touches[0].clientX) - lastTranslate.x;
+            startPos.y = (e.clientY || e.touches[0].clientY) - lastTranslate.y;
+        }
+
+        function pan(e) {
+            if (!isDragging || !isZoomed) return;
+            e.preventDefault();
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+
+            currentTranslate.x = clientX - startPos.x;
+            currentTranslate.y = clientY - startPos.y;
+
+            // Clamp panning to keep image within view
+            const rect = lightboxImg.getBoundingClientRect();
+            const containerRect = lightboxImg.parentElement.getBoundingClientRect();
+            const maxTranslateX = (rect.width - containerRect.width) / 2;
+            const maxTranslateY = (rect.height - containerRect.height) / 2;
+
+            currentTranslate.x = Math.max(Math.min(currentTranslate.x, maxTranslateX), -maxTranslateX);
+            currentTranslate.y = Math.max(Math.min(currentTranslate.y, maxTranslateY), -maxTranslateY);
+
+            lightboxImg.style.transform = `scale(2.5) translate(${currentTranslate.x}px, ${currentTranslate.y}px)`;
+        }
+
+        function endPan() {
+            if (!isDragging) return;
+            isDragging = false;
+            lastTranslate.x = currentTranslate.x;
+            lastTranslate.y = currentTranslate.y;
+        }
+
         function handleInitialLoad() {
             const hash = window.location.hash.substring(1);
             if (hash && characterDatabase[hash]) {
@@ -361,8 +449,6 @@
                 }
             }
         }
-
-        lightboxImg.style.transition = 'opacity 0.3s ease';
 
         init();
     </script>
