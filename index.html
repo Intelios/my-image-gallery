@@ -9,39 +9,12 @@
         
         /* --- Reset & Global Styles --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        html {
-            /* NEW: Smooth scrolling for anchor links */
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif; background: #000; color: #f5f5f7; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-            background: #000;
-            color: #f5f5f7;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* --- NEW: PRE-LOADER --- */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .preloader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
+        /* --- Pre-loader --- */
+        .preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease, visibility 0.5s ease; }
+        .preloader.hidden { opacity: 0; visibility: hidden; }
 
         /* --- Dynamic Background --- */
         .background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at top, #1d1d1f 0%, #000 70%); z-index: -2; }
@@ -76,8 +49,8 @@
         .character-name { font-size: 1.5rem; font-weight: 600; color: #f5f5f7; margin-bottom: 12px; letter-spacing: -0.01em; }
         .character-description { color: #86868b; font-size: 1rem; line-height: 1.5; margin-bottom: 20px; font-weight: 400; }
         
-        /* --- NEW: Character Link Button --- */
-        .character-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 122, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 122, 255, 0.2); padding: 10px 18px; border-radius: 16px; color: #007AFF; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden; margin-bottom: 16px; }
+        /* --- Character Link Button --- */
+        .character-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 122, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 122, 255, 0.2); padding: 10px 18px; border-radius: 16px; color: #007AFF; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden; }
         .character-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 122, 255, 0.1), transparent); transition: left 0.5s; }
         .character-link:hover::before { left: 100%; }
         .character-link:hover { background: rgba(0, 122, 255, 0.15); border-color: rgba(0, 122, 255, 0.3); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); }
@@ -125,7 +98,6 @@
     </style>
 </head>
 <body>
-    <!-- NEW: Pre-loader element -->
     <div class="preloader" id="preloader">
         <div class="loading-spinner"></div>
     </div>
@@ -137,6 +109,8 @@
         <header>
             <h1 id="main-title">Character Gallery</h1>
             <p class="subtitle" id="main-subtitle">Explore my characters.</p>
+            <!-- MODIFIED: Container for the profile link, hidden by default -->
+            <div id="character-link-container" style="display: none; margin-top: 24px;"></div>
         </header>
 
         <div class="nav-container">
@@ -167,24 +141,25 @@
                 name: "Daisy",
                 description: "A cheerful adventurer who loves to explore sunny fields and ancient ruins.",
                 avatar: 'images/daisy/avatar.png',
-                // NEW: Add an optional link for the character profile button
                 link: 'https://toyhou.se/' // Example link
             },
             "zane": { 
                 name: "Zane Shadowblade", 
                 description: "A mysterious rogue with dual daggers and a troubled past.", 
-                avatar: "🗡️" 
+                avatar: "🗡️",
+                link: 'https://toyhou.se/'
             },
             "maya": { 
                 name: "Maya Stormcaller", 
                 description: "A powerful sorceress who commands lightning and thunder.", 
                 avatar: "⚡",
-                link: 'https://www.artstation.com/' // Another example
+                link: 'https://toyhou.se/'
             },
             "kai": { 
                 name: "Kai Ironheart", 
                 description: "A noble paladin with unshakeable faith and a magical sword.", 
-                avatar: "🛡️" 
+                avatar: "🛡️",
+                link: 'https://toyhou.se/'
             }
         };
 
@@ -197,6 +172,7 @@
         const backBtn = document.getElementById('back-btn');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
+        const linkContainer = document.getElementById('character-link-container'); // MODIFIED: Get the new container
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
@@ -207,14 +183,10 @@
         let currentGalleryImages = [];
         let currentImageIndex = 0;
 
-        // MODIFIED: init is now async to handle pre-loading
         async function init() {
             setupEventListeners();
-            // Wait for all characters and their image counts to load
             await loadCharacters();
-            // Handle deep linking from URL hash
             handleInitialLoad();
-            // Hide the pre-loader once everything is ready
             preloader.classList.add('hidden');
         }
 
@@ -224,7 +196,6 @@
             lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
             lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex - 1); });
             lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex + 1); });
-            
             document.addEventListener('keydown', (e) => {
                 if (lightbox.classList.contains('active')) {
                     if (e.key === 'ArrowRight') showLightboxImage(currentImageIndex + 1);
@@ -234,12 +205,9 @@
                     if (e.key === 'Escape') showCharacters();
                 }
             });
-
-            // NEW: Handle browser back/forward buttons for deep linking
             window.addEventListener('popstate', handleInitialLoad);
         }
 
-        // MODIFIED: Returns a promise that resolves when all cards are loaded
         function loadCharacters() {
             characterGrid.innerHTML = '';
             const characterPromises = Object.keys(characterDatabase).map(characterId => {
@@ -247,24 +215,13 @@
                     const character = characterDatabase[characterId];
                     const card = document.createElement('div');
                     card.className = 'character-card';
-                    
                     let avatarContent = character.avatar.includes('.') ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` : character.avatar;
                     
-                    // NEW: Conditionally add the character link button
-                    let linkButtonHTML = '';
-                    if (character.link) {
-                        linkButtonHTML = `
-                            <a href="${character.link}" class="character-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
-                                View Profile <span class="link-icon">↗</span>
-                            </a>
-                        `;
-                    }
-
+                    // MODIFIED: The link button is REMOVED from the card
                     card.innerHTML = `
                         <div class="character-avatar">${avatarContent}</div>
                         <div class="character-name">${character.name}</div>
                         <div class="character-description">${character.description}</div>
-                        ${linkButtonHTML}
                         <div class="image-count" id="count-${characterId}">
                             <div class="loading-spinner"></div>
                         </div>
@@ -298,14 +255,23 @@
             return count;
         }
 
-        // MODIFIED: Updates URL hash
         async function showCharacterGallery(characterId) {
-            // NEW: Update URL without reloading the page
             history.pushState({ character: characterId }, '', `#${characterId}`);
-
             const character = characterDatabase[characterId];
             mainTitle.textContent = character.name;
             mainSubtitle.textContent = character.description;
+            
+            // MODIFIED: Add the profile link button to the header
+            if (character.link) {
+                linkContainer.innerHTML = `
+                    <a href="${character.link}" class="character-link" target="_blank" rel="noopener noreferrer">
+                        View Profile <span class="link-icon">↗</span>
+                    </a>
+                `;
+                linkContainer.style.display = 'inline-block';
+            } else {
+                linkContainer.style.display = 'none';
+            }
             
             characterGrid.style.display = 'none';
             imageGallery.classList.add('active');
@@ -338,13 +304,14 @@
             return foundImages;
         }
 
-        // MODIFIED: Updates URL hash
         function showCharacters() {
-            // NEW: Clear the hash from the URL
             history.pushState({ character: null }, '', window.location.pathname + window.location.search);
-
             mainTitle.textContent = 'Character Gallery';
             mainSubtitle.textContent = 'Explore my characters.';
+            
+            // MODIFIED: Hide the profile link container when going back home
+            linkContainer.style.display = 'none';
+
             characterGrid.style.display = 'grid';
             imageGallery.classList.remove('active');
             backBtn.style.display = 'none';
@@ -384,13 +351,11 @@
             }, 150);
         }
         
-        // NEW: Function to handle deep linking on page load
         function handleInitialLoad() {
             const hash = window.location.hash.substring(1);
             if (hash && characterDatabase[hash]) {
                 showCharacterGallery(hash);
             } else {
-                // If hash is invalid or empty, show the main grid
                 if (imageGallery.classList.contains('active')) {
                     showCharacters();
                 }
@@ -399,7 +364,6 @@
 
         lightboxImg.style.transition = 'opacity 0.3s ease';
 
-        // Start the application
         init();
     </script>
 </body>
