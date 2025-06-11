@@ -8,12 +8,13 @@
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
         
         /* --- Reset & Global Styles --- */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        html {
+            /* NEW: Smooth scrolling for anchor links */
+            scroll-behavior: smooth;
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
             background: #000;
@@ -23,519 +24,112 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* --- NEW: PRE-LOADER --- */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
         /* --- Dynamic Background --- */
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at top, #1d1d1f 0%, #000 70%);
-            z-index: -2;
-        }
+        .background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at top, #1d1d1f 0%, #000 70%); z-index: -2; }
+        .background::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 59, 48, 0.05) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(48, 209, 88, 0.05) 0%, transparent 50%); animation: backgroundShift 20s ease-in-out infinite; }
+        .grain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.02; background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 15px 15px; z-index: -1; animation: grain 8s steps(10) infinite; }
+        @keyframes backgroundShift { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(0.5deg); } }
+        @keyframes grain { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-5%, -5%); } 20% { transform: translate(-10%, 5%); } 30% { transform: translate(5%, -10%); } 40% { transform: translate(-5%, 15%); } 50% { transform: translate(-10%, 5%); } 60% { transform: translate(15%, 0%); } 70% { transform: translate(0%, 15%); } 80% { transform: translate(-15%, 10%); } 90% { transform: translate(10%, 5%); } }
 
-        .background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 59, 48, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(48, 209, 88, 0.05) 0%, transparent 50%);
-            animation: backgroundShift 20s ease-in-out infinite;
-        }
-
-        .grain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.02;
-            background-image: 
-                radial-gradient(circle, #fff 1px, transparent 1px);
-            background-size: 15px 15px;
-            z-index: -1;
-            animation: grain 8s steps(10) infinite;
-        }
-
-        @keyframes backgroundShift {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(0.5deg); }
-        }
-
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -5%); }
-            20% { transform: translate(-10%, 5%); }
-            30% { transform: translate(5%, -10%); }
-            40% { transform: translate(-5%, 15%); }
-            50% { transform: translate(-10%, 5%); }
-            60% { transform: translate(15%, 0%); }
-            70% { transform: translate(0%, 15%); }
-            80% { transform: translate(-15%, 10%); }
-            90% { transform: translate(10%, 5%); }
-        }
-
-        .container { 
-            max-width: 1440px; 
-            margin: 0 auto; 
-            padding: 40px 24px 80px;
-            position: relative;
-        }
+        .container { max-width: 1440px; margin: 0 auto; padding: 40px 24px 80px; position: relative; }
 
         /* --- Header Styles --- */
-        header { 
-            text-align: center; 
-            margin-bottom: 80px;
-            position: relative;
-        }
-
-        h1 { 
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 700;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #f5f5f7 0%, #86868b 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-        }
-
-        .subtitle { 
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: #86868b;
-            margin-bottom: 32px;
-            letter-spacing: 0.01em;
-        }
+        header { text-align: center; margin-bottom: 80px; position: relative; }
+        h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 700; margin-bottom: 24px; background: linear-gradient(135deg, #f5f5f7 0%, #86868b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em; line-height: 1.1; }
+        .subtitle { font-size: 1.25rem; font-weight: 400; color: #86868b; margin-bottom: 32px; letter-spacing: 0.01em; }
 
         /* --- Navigation --- */
-        .nav-container { 
-            display: flex; 
-            justify-content: center; 
-            margin-bottom: 60px;
-        }
-
-        .back-btn { 
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f5f5f7;
-            padding: 12px 24px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 16px;
-            font-weight: 500;
-            display: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .back-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .back-btn:hover::before {
-            left: 100%;
-        }
-
-        .back-btn:hover { 
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .back-btn:active {
-            transform: translateY(0);
-        }
+        .nav-container { display: flex; justify-content: center; margin-bottom: 60px; }
+        .back-btn { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); color: #f5f5f7; padding: 12px 24px; border-radius: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); font-size: 16px; font-weight: 500; display: none; position: relative; overflow: hidden; }
+        .back-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .back-btn:hover::before { left: 100%; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+        .back-btn:active { transform: translateY(0); }
 
         /* --- Character Grid --- */
-        .character-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 32px; 
-            margin-bottom: 60px;
-        }
+        .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; margin-bottom: 60px; }
+        .character-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden; }
+        .character-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%); opacity: 0; transition: opacity 0.3s ease; }
+        .character-card:hover::before { opacity: 1; }
+        .character-card:hover { transform: translateY(-8px); background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+        .character-avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 24px; background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 122, 255, 0.3); }
+        .character-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .character-name { font-size: 1.5rem; font-weight: 600; color: #f5f5f7; margin-bottom: 12px; letter-spacing: -0.01em; }
+        .character-description { color: #86868b; font-size: 1rem; line-height: 1.5; margin-bottom: 20px; font-weight: 400; }
+        
+        /* --- NEW: Character Link Button --- */
+        .character-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 122, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 122, 255, 0.2); padding: 10px 18px; border-radius: 16px; color: #007AFF; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden; margin-bottom: 16px; }
+        .character-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 122, 255, 0.1), transparent); transition: left 0.5s; }
+        .character-link:hover::before { left: 100%; }
+        .character-link:hover { background: rgba(0, 122, 255, 0.15); border-color: rgba(0, 122, 255, 0.3); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); }
+        .character-link:active { transform: translateY(0); }
+        .link-icon { font-size: 0.75rem; opacity: 0.8; }
 
-        .character-card { 
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 32px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .character-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .character-card:hover::before {
-            opacity: 1;
-        }
-
-        .character-card:hover { 
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.05);
-        }
-
-        .character-avatar { 
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin: 0 auto 24px;
-            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.3);
-        }
-
-        .character-avatar img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover;
-        }
-
-        .character-name { 
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #f5f5f7;
-            margin-bottom: 12px;
-            letter-spacing: -0.01em;
-        }
-
-        .character-description { 
-            color: #86868b;
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-
-        .image-count { 
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 16px;
-            border-radius: 12px;
-            color: #f5f5f7;
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: inline-block;
-        }
+        .image-count { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; color: #f5f5f7; font-size: 0.875rem; font-weight: 500; display: inline-block; }
 
         /* --- Image Gallery --- */
-        .image-gallery { 
-            display: none;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .image-gallery.active { 
-            display: block;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .gallery-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 24px; 
-            margin-top: 40px;
-        }
-
-        .image-item { 
-            position: relative;
-            aspect-ratio: 1;
-            overflow: hidden;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .image-item:hover { 
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-        }
-
-        .image-item img { 
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .image-item:hover img { 
-            transform: scale(1.05);
-        }
-
-        .image-overlay { 
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 24px;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .image-item:hover .image-overlay { 
-            transform: translateY(0);
-        }
-
-        .image-title { 
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
+        .image-gallery { display: none; animation: fadeInUp 0.6s ease-out; }
+        .image-gallery.active { display: block; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-top: 40px; }
+        .image-item { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 20px; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .image-item:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .image-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .image-item:hover img { transform: scale(1.05); }
+        .image-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0, 0, 0, 0.8)); backdrop-filter: blur(10px); color: white; padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .image-item:hover .image-overlay { transform: translateY(0); }
+        .image-title { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
 
         /* --- Lightbox --- */
-        .lightbox { 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .lightbox.active { 
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .lightbox-content {
-            max-width: calc(100vw - 160px);
-            max-height: calc(100vh - 120px);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: zoomIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        @keyframes zoomIn { 
-            from { 
-                transform: scale(0.9); 
-                opacity: 0; 
-            } 
-            to { 
-                transform: scale(1); 
-                opacity: 1; 
-            } 
-        }
-
-        .lightbox img {
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
-            transition: opacity 0.3s ease;
-        }
-
-        .lightbox-close {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f5f5f7;
-            font-size: 24px;
-            cursor: pointer;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 1002;
-            font-weight: 300;
-        }
-
-        .lightbox-close:hover { 
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.05);
-        }
-
-        .lightbox-nav {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f5f5f7;
-            font-size: 20px;
-            cursor: pointer;
-            width: 44px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 1001;
-            user-select: none;
-        }
-
-        .lightbox-nav:hover { 
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-50%) scale(1.05);
-        }
-
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .lightbox.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .lightbox-content { max-width: calc(100vw - 160px); max-height: calc(100vh - 120px); position: relative; display: flex; align-items: center; justify-content: center; animation: zoomIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); transition: opacity 0.3s ease; }
+        .lightbox-close { position: fixed; top: 24px; right: 24px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); color: #f5f5f7; font-size: 24px; cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1002; font-weight: 300; }
+        .lightbox-close:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.05); }
+        .lightbox-nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); color: #f5f5f7; font-size: 20px; cursor: pointer; width: 44px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1001; user-select: none; }
+        .lightbox-nav:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-50%) scale(1.05); }
         #lightbox-prev { left: 24px; }
         #lightbox-next { right: 24px; }
-
-        .lightbox-caption {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            color: #f5f5f7;
-            padding: 12px 20px;
-            border-radius: 16px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            z-index: 1001;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        .lightbox-caption { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); color: #f5f5f7; padding: 12px 20px; border-radius: 16px; font-size: 0.875rem; font-weight: 500; z-index: 1001; border: 1px solid rgba(255, 255, 255, 0.1); }
 
         /* --- Utility Classes --- */
-        .gallery-message { 
-            text-align: center;
-            color: #86868b;
-            font-size: 1.125rem;
-            padding: 80px 32px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-        }
-
-        .loading-spinner { 
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            border-top-color: #007AFF;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 
-            to { transform: rotate(360deg); } 
-        }
+        .gallery-message { text-align: center; color: #86868b; font-size: 1.125rem; padding: 80px 32px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%; border-top-color: #007AFF; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* --- Responsive Design --- */
-        @media (max-width: 768px) { 
-            .container { padding: 24px 16px 60px; }
-            h1 { font-size: 2.5rem; }
-            .character-grid { 
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-            .gallery-grid { 
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 16px;
-            }
-            .character-card { padding: 24px; }
-            .character-avatar { 
-                width: 100px;
-                height: 100px;
-                font-size: 2.5rem;
-            }
-            .lightbox-content {
-                max-width: calc(100vw - 80px);
-                max-height: calc(100vh - 160px);
-            }
-            .lightbox-close,
-            .lightbox-nav {
-                width: 40px;
-                height: 40px;
-            }
-            #lightbox-prev { left: 16px; }
-            #lightbox-next { right: 16px; }
-            .lightbox-close { 
-                top: 16px;
-                right: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .character-grid { gap: 16px; }
-            .gallery-grid { 
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 12px;
-            }
-        }
+        @media (max-width: 768px) { .container { padding: 24px 16px 60px; } h1 { font-size: 2.5rem; } .character-grid { grid-template-columns: 1fr; gap: 24px; } .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; } .character-card { padding: 24px; } .character-avatar { width: 100px; height: 100px; font-size: 2.5rem; } .lightbox-content { max-width: calc(100vw - 80px); max-height: calc(100vh - 160px); } .lightbox-close, .lightbox-nav { width: 40px; height: 40px; } #lightbox-prev { left: 16px; } #lightbox-next { right: 16px; } .lightbox-close { top: 16px; right: 16px; } }
+        @media (max-width: 480px) { .character-grid { gap: 16px; } .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; } }
     </style>
 </head>
 <body>
+    <!-- NEW: Pre-loader element -->
+    <div class="preloader" id="preloader">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="background"></div>
     <div class="grain"></div>
     
@@ -567,11 +161,14 @@
     </div>
 
     <script>
+        // --- The only part you need to edit! ---
         const characterDatabase = {
             "daisy": {
                 name: "Daisy",
                 description: "A cheerful adventurer who loves to explore sunny fields and ancient ruins.",
-                avatar: 'images/daisy/avatar.png' 
+                avatar: 'images/daisy/avatar.png',
+                // NEW: Add an optional link for the character profile button
+                link: 'https://toyhou.se/' // Example link
             },
             "zane": { 
                 name: "Zane Shadowblade", 
@@ -581,7 +178,8 @@
             "maya": { 
                 name: "Maya Stormcaller", 
                 description: "A powerful sorceress who commands lightning and thunder.", 
-                avatar: "⚡" 
+                avatar: "⚡",
+                link: 'https://www.artstation.com/' // Another example
             },
             "kai": { 
                 name: "Kai Ironheart", 
@@ -590,6 +188,8 @@
             }
         };
 
+        // --- No need to edit below this line ---
+        const preloader = document.getElementById('preloader');
         const characterGrid = document.getElementById('character-grid');
         const imageGallery = document.getElementById('image-gallery');
         const galleryGrid = document.getElementById('gallery-grid');
@@ -607,19 +207,23 @@
         let currentGalleryImages = [];
         let currentImageIndex = 0;
 
-        function init() {
-            loadCharacters();
+        // MODIFIED: init is now async to handle pre-loading
+        async function init() {
             setupEventListeners();
+            // Wait for all characters and their image counts to load
+            await loadCharacters();
+            // Handle deep linking from URL hash
+            handleInitialLoad();
+            // Hide the pre-loader once everything is ready
+            preloader.classList.add('hidden');
         }
 
         function setupEventListeners() {
             backBtn.addEventListener('click', showCharacters);
             lightboxClose.addEventListener('click', closeLightbox);
-            lightbox.addEventListener('click', (e) => { 
-                if (e.target === lightbox) closeLightbox(); 
-            });
-            lightboxPrev.addEventListener('click', () => showLightboxImage(currentImageIndex - 1));
-            lightboxNext.addEventListener('click', () => showLightboxImage(currentImageIndex + 1));
+            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+            lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex - 1); });
+            lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); showLightboxImage(currentImageIndex + 1); });
             
             document.addEventListener('keydown', (e) => {
                 if (lightbox.classList.contains('active')) {
@@ -630,36 +234,51 @@
                     if (e.key === 'Escape') showCharacters();
                 }
             });
+
+            // NEW: Handle browser back/forward buttons for deep linking
+            window.addEventListener('popstate', handleInitialLoad);
         }
 
+        // MODIFIED: Returns a promise that resolves when all cards are loaded
         function loadCharacters() {
             characterGrid.innerHTML = '';
-            Object.keys(characterDatabase).forEach(async (characterId) => {
-                const character = characterDatabase[characterId];
-                const card = document.createElement('div');
-                card.className = 'character-card';
-                card.setAttribute('data-character', characterId);
-                
-                let avatarContent = character.avatar.includes('.') 
-                    ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` 
-                    : character.avatar;
-                
-                card.innerHTML = `
-                    <div class="character-avatar">${avatarContent}</div>
-                    <div class="character-name">${character.name}</div>
-                    <div class="character-description">${character.description}</div>
-                    <div class="image-count" id="count-${characterId}">
-                        <div class="loading-spinner"></div>
-                    </div>
-                `;
-                
-                card.addEventListener('click', () => showCharacterGallery(characterId));
-                characterGrid.appendChild(card);
-                
-                const imageCount = await countImages(characterId);
-                document.getElementById(`count-${characterId}`).textContent = 
-                    `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
+            const characterPromises = Object.keys(characterDatabase).map(characterId => {
+                return new Promise(async (resolve) => {
+                    const character = characterDatabase[characterId];
+                    const card = document.createElement('div');
+                    card.className = 'character-card';
+                    
+                    let avatarContent = character.avatar.includes('.') ? `<img src="${character.avatar}" alt="${character.name}" onerror="this.parentElement.innerHTML = '❓';">` : character.avatar;
+                    
+                    // NEW: Conditionally add the character link button
+                    let linkButtonHTML = '';
+                    if (character.link) {
+                        linkButtonHTML = `
+                            <a href="${character.link}" class="character-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+                                View Profile <span class="link-icon">↗</span>
+                            </a>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="character-avatar">${avatarContent}</div>
+                        <div class="character-name">${character.name}</div>
+                        <div class="character-description">${character.description}</div>
+                        ${linkButtonHTML}
+                        <div class="image-count" id="count-${characterId}">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => showCharacterGallery(characterId));
+                    characterGrid.appendChild(card);
+                    
+                    const imageCount = await countImages(characterId);
+                    document.getElementById(`count-${characterId}`).textContent = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
+                    resolve();
+                });
             });
+            return Promise.all(characterPromises);
         }
 
         function checkImage(path) {
@@ -674,16 +293,16 @@
         async function countImages(characterId) {
             let count = 0;
             for (let i = 1; i <= 100; i++) {
-                if (await checkImage(`images/${characterId}/image${i}.png`)) {
-                    count++;
-                } else {
-                    break;
-                }
+                if (await checkImage(`images/${characterId}/image${i}.png`)) count++; else break;
             }
             return count;
         }
 
+        // MODIFIED: Updates URL hash
         async function showCharacterGallery(characterId) {
+            // NEW: Update URL without reloading the page
+            history.pushState({ character: characterId }, '', `#${characterId}`);
+
             const character = characterDatabase[characterId];
             mainTitle.textContent = character.name;
             mainSubtitle.textContent = character.description;
@@ -700,18 +319,11 @@
             currentGalleryImages = await findCharacterImages(characterId);
             
             if (currentGalleryImages.length === 0) {
-                galleryMessage.innerHTML = `
-                    <p>No images found for this character yet!</p>
-                    <p style="margin-top: 16px; font-size: 1rem; opacity: 0.7;">
-                        Add files like <code>image1.png</code> to the <code>/images/${characterId}/</code> folder.
-                    </p>
-                `;
+                galleryMessage.innerHTML = `<p>No images found for this character yet!</p><p style="margin-top: 16px; font-size: 1rem; opacity: 0.7;">Add files like <code>image1.png</code> to the <code>/images/${characterId}/</code> folder.</p>`;
             } else {
                 galleryMessage.style.display = 'none';
                 galleryGrid.style.display = 'grid';
-                currentGalleryImages.forEach((image, index) => 
-                    galleryGrid.appendChild(createImageItem(image, index))
-                );
+                currentGalleryImages.forEach((image, index) => galleryGrid.appendChild(createImageItem(image, index)));
             }
         }
 
@@ -720,20 +332,19 @@
             for (let i = 1; i <= 100; i++) {
                 const path = `images/${characterId}/image${i}.png`;
                 if (await checkImage(path)) {
-                    foundImages.push({ 
-                        src: path, 
-                        title: `${characterDatabase[characterId].name} - Image ${i}` 
-                    });
-                } else {
-                    break;
-                }
+                    foundImages.push({ src: path, title: `${characterDatabase[characterId].name} - Image ${i}` });
+                } else break;
             }
             return foundImages;
         }
 
+        // MODIFIED: Updates URL hash
         function showCharacters() {
+            // NEW: Clear the hash from the URL
+            history.pushState({ character: null }, '', window.location.pathname + window.location.search);
+
             mainTitle.textContent = 'Character Gallery';
-            mainSubtitle.textContent = 'Explore amazing characters in stunning detail';
+            mainSubtitle.textContent = 'Explore my characters.';
             characterGrid.style.display = 'grid';
             imageGallery.classList.remove('active');
             backBtn.style.display = 'none';
@@ -742,13 +353,7 @@
         function createImageItem(image, index) {
             const item = document.createElement('div');
             item.className = 'image-item';
-            item.innerHTML = `
-                <img src="${image.src}" alt="${image.title}" loading="lazy" 
-                     onerror="this.parentElement.style.display='none'">
-                <div class="image-overlay">
-                    <div class="image-title">${image.title}</div>
-                </div>
-            `;
+            item.innerHTML = `<img src="${image.src}" alt="${image.title}" loading="lazy" onerror="this.parentElement.style.display='none'"><div class="image-overlay"><div class="image-title">${image.title}</div></div>`;
             item.addEventListener('click', () => openLightbox(index));
             return item;
         }
@@ -766,13 +371,10 @@
 
         function showLightboxImage(index) {
             if (currentGalleryImages.length === 0) return;
-            
             if (index >= currentGalleryImages.length) index = 0;
             if (index < 0) index = currentGalleryImages.length - 1;
-            
             currentImageIndex = index;
             const image = currentGalleryImages[index];
-            
             lightboxImg.style.opacity = 0;
             setTimeout(() => {
                 lightboxImg.src = image.src;
@@ -782,8 +384,22 @@
             }, 150);
         }
         
+        // NEW: Function to handle deep linking on page load
+        function handleInitialLoad() {
+            const hash = window.location.hash.substring(1);
+            if (hash && characterDatabase[hash]) {
+                showCharacterGallery(hash);
+            } else {
+                // If hash is invalid or empty, show the main grid
+                if (imageGallery.classList.contains('active')) {
+                    showCharacters();
+                }
+            }
+        }
+
         lightboxImg.style.transition = 'opacity 0.3s ease';
 
+        // Start the application
         init();
     </script>
 </body>
