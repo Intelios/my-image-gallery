@@ -262,7 +262,20 @@
     </div>
 
     <script>
+        
         // --- The only part you need to edit! ---
+
+        // NEW: Define the display order of your characters here.
+        // To reorder, just change the order of the names in this list.
+        // To temporarily hide a character, you can comment out their line (e.g., // "mina",)
+        const characterOrder = [
+            "lena",       
+            "akira",         
+            "mina",
+            "rei",
+            "sparklepop"
+        ];
+
         const characterDatabase = {
             "mina": {
                 name: "Mina",
@@ -372,13 +385,21 @@
             window.addEventListener('popstate', handleInitialLoad);
         }
 
-        // --- NEW: Performance optimizations and smooth transitions ---
+        // --- MODIFIED: This function now uses the characterOrder array ---
         function loadCharacters() {
             characterGrid.innerHTML = '';
             characterGrid.classList.add('page-transition');
             
-            Object.keys(characterDatabase).forEach((characterId, index) => {
+            // We now loop through the 'characterOrder' array to control the display order
+            characterOrder.forEach((characterId, index) => {
                 const character = characterDatabase[characterId];
+
+                // Safety check: if a characterId in the order list doesn't exist in the database, skip it.
+                if (!character) {
+                    console.warn(`Character with ID "${characterId}" not found in characterDatabase.`);
+                    return;
+                }
+                
                 const card = document.createElement('div');
                 card.className = 'character-card';
                 
@@ -463,7 +484,6 @@
             }, 300);
         }
 
-        // NEW: Smooth text transitions
         function animateTextChange(element, newText) {
             element.style.transform = 'translateY(-10px)';
             element.style.opacity = '0';
@@ -475,7 +495,6 @@
             }, 150);
         }
 
-        // NEW: Optimized gallery loading
         function loadGalleryWithOptimizations(character) {
             galleryGrid.innerHTML = '';
             galleryGrid.style.display = 'none';
@@ -495,7 +514,6 @@
             loadImagesProgressively(currentGalleryImages);
         }
 
-        // NEW: Progressive image loading
         function loadImagesProgressively(images) {
             const loadBatch = 6;
             let loadedCount = 0;
@@ -514,16 +532,15 @@
             }
             loadNextBatch();
         }
-        // NEW: Optimized image item creation with loading states
+
         function createOptimizedImageItem(image, index) {
             const item = document.createElement('div');
             item.className = 'image-item loading';
             
-            // Create the structure first
             const imageContainer = document.createElement('div');
             imageContainer.style.position = 'relative';
             imageContainer.style.width = '100%';
-            imageContainer.style.height = '300px'; // Fixed height for consistency
+            imageContainer.style.height = '300px';
             imageContainer.style.overflow = 'hidden';
             
             const overlay = document.createElement('div');
@@ -533,7 +550,6 @@
             item.appendChild(imageContainer);
             item.appendChild(overlay);
             
-            // Create and load the image
             const img = document.createElement('img');
             img.src = image.src;
             img.alt = image.title;
@@ -558,7 +574,6 @@
             return item;
         }
 
-        // NEW: Optimized lightbox with preloading
         function openLightbox(index) {
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -572,7 +587,6 @@
             resetZoom();
         }
 
-        // NEW: Optimized lightbox image display
         function showLightboxImage(index) {
             if (currentGalleryImages.length === 0) return;
             resetZoom();
@@ -595,15 +609,12 @@
             }, 150);
         }
         
-        // NEW: Preload adjacent images for smoother navigation
         function preloadAdjacentImages(currentIndex) {
             const preloadCount = 2;
             for (let i = 1; i <= preloadCount; i++) {
-                // Preload next images
                 if (currentIndex + i < currentGalleryImages.length) {
                     (new Image()).src = currentGalleryImages[currentIndex + i].src;
                 }
-                // Preload previous images
                 if (currentIndex - i >= 0) {
                     (new Image()).src = currentGalleryImages[currentIndex - i].src;
                 }
@@ -676,5 +687,3 @@
 
         init();
     </script>
-</body>
-</html>
