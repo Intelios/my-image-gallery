@@ -514,27 +514,46 @@
             }
             loadNextBatch();
         }
-
         // NEW: Optimized image item creation with loading states
         function createOptimizedImageItem(image, index) {
             const item = document.createElement('div');
             item.className = 'image-item loading';
             
-            const aspectRatio = 1; // Assume square, adjust if needed
-            item.innerHTML = `<div class="image-placeholder" style="padding-bottom: ${100 / aspectRatio}%;"></div><div class="image-overlay"><div class="image-title">${image.title}</div></div>`;
+            // Create the structure first
+            const imageContainer = document.createElement('div');
+            imageContainer.style.position = 'relative';
+            imageContainer.style.width = '100%';
+            imageContainer.style.height = '300px'; // Fixed height for consistency
+            imageContainer.style.overflow = 'hidden';
             
-            const img = new Image();
-            img.loading = 'lazy';
+            const overlay = document.createElement('div');
+            overlay.className = 'image-overlay';
+            overlay.innerHTML = `<div class="image-title">${image.title}</div>`;
+            
+            item.appendChild(imageContainer);
+            item.appendChild(overlay);
+            
+            // Create and load the image
+            const img = document.createElement('img');
             img.src = image.src;
+            img.alt = image.title;
+            img.loading = 'lazy';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.4s ease';
             
             img.onload = () => {
-                item.innerHTML = `<img src="${image.src}" alt="${image.title}" style="opacity: 0; transition: opacity 0.4s ease;"><div class="image-overlay"><div class="image-title">${image.title}</div></div>`;
-                const imgElement = item.querySelector('img');
-                setTimeout(() => { imgElement.style.opacity = '1'; }, 50);
+                img.style.opacity = '1';
                 item.classList.remove('loading');
             };
             
-            img.onerror = () => { item.style.display = 'none'; };
+            img.onerror = () => {
+                item.style.display = 'none';
+            };
+            
+            imageContainer.appendChild(img);
             item.addEventListener('click', () => openLightbox(index));
             return item;
         }
